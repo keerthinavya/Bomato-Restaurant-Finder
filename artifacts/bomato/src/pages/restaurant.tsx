@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +10,14 @@ import {
   getListMenuItemsQueryKey,
 } from "@workspace/api-client-react";
 import type { MenuItem } from "@workspace/api-client-react/src/generated/api.schemas";
-import { Star, Clock, MapPin, ArrowLeft, Minus, Plus, Leaf, Flame } from "lucide-react";
+import { useOrder } from "@/contexts/order-context";
+import { Star, Clock, MapPin, ArrowLeft, Minus, Plus, Leaf, Flame, ShoppingBag } from "lucide-react";
 
 export default function RestaurantDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0", 10);
-  const [counts, setCounts] = useState<Record<number, number>>({});
+  const [, setLocation] = useLocation();
+  const { increment, decrement, getCount, totalCount } = useOrder();
 
   const { data: restaurant, isLoading, isError } = useGetRestaurant(id, {
     query: { enabled: !!id, queryKey: getGetRestaurantQueryKey(id) },
@@ -25,19 +26,6 @@ export default function RestaurantDetail() {
   const { data: menuItems, isLoading: isLoadingMenu } = useListMenuItems(id, {
     query: { enabled: !!id, queryKey: getListMenuItemsQueryKey(id) },
   });
-
-  const increment = (itemId: number) =>
-    setCounts((prev) => ({ ...prev, [itemId]: (prev[itemId] ?? 0) + 1 }));
-
-  const decrement = (itemId: number) =>
-    setCounts((prev) => {
-      const next = (prev[itemId] ?? 0) - 1;
-      if (next <= 0) {
-        const { [itemId]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [itemId]: next };
-    });
 
   if (isLoading) {
     return (
@@ -105,7 +93,6 @@ export default function RestaurantDetail() {
           </Button>
         </div>
 
-        {/* Name overlay on banner */}
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-6 z-10">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-wrap gap-2 mb-3">
@@ -167,7 +154,7 @@ export default function RestaurantDetail() {
       </div>
 
       {/* Menu section */}
-      <div className="max-w-4xl mx-auto px-4 py-10 pb-24">
+      <div className="max-w-4xl mx-auto px-4 py-10 pb-32">
         <h2 className="text-2xl font-extrabold mb-8" data-testid="text-menu-heading">
           Menu
         </h2>
@@ -184,9 +171,7 @@ export default function RestaurantDetail() {
             ))}
           </div>
         ) : categories.length === 0 ? (
-          <p className="text-muted-foreground text-center py-16">
-            No menu items available.
-          </p>
+          <p className="text-muted-foreground text-center py-16">No menu items available.</p>
         ) : (
           <div className="space-y-10">
             {categories.map((category) => (
@@ -197,8 +182,8 @@ export default function RestaurantDetail() {
                     <MenuItemRow
                       key={item.id}
                       item={item}
-                      count={counts[item.id] ?? 0}
-                      onIncrement={() => increment(item.id)}
+                      count={getCount(item.id)}
+                      onIncrement={() => increment(item, id)}
                       onDecrement={() => decrement(item.id)}
                     />
                   ))}
@@ -208,6 +193,28 @@ export default function RestaurantDetail() {
           </div>
         )}
       </div>
+
+      {/* Sticky "View Order" button */}
+      {totalCount > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-3 bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none">
+          <div className="max-w-4xl mx-auto pointer-events-auto">
+            <Button
+              size="lg"
+              className="w-full h-14 text-base font-bold rounded-2xl shadow-xl flex items-center justify-between px-6"
+              onClick={() => setLocation("/order-summary")}
+              data-testid="button-view-order"
+            >
+              <span className="flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5" />
+                View Order
+              </span>
+              <span className="bg-primary-foreground/20 text-primary-foreground rounded-full px-3 py-0.5 text-sm font-bold">
+                {totalCount} {totalCount === 1 ? "item" : "items"}
+              </span>
+            </Button>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
@@ -238,10 +245,7 @@ function MenuItemRow({ item, count, onIncrement, onDecrement }: MenuItemRowProps
 
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2 mb-0.5">
-          <span
-            className="font-semibold text-base leading-snug"
-            data-testid={`text-menu-item-name-${item.id}`}
-          >
+          <span className="font-semibold text-base leading-snug" data-testid={`text-menu-item-name-${item.id}`}>
             {item.name}
           </span>
           {item.isPopular && (
@@ -255,21 +259,14 @@ function MenuItemRow({ item, count, onIncrement, onDecrement }: MenuItemRowProps
             </span>
           )}
         </div>
-        <p
-          className="text-sm text-muted-foreground line-clamp-2 leading-snug"
-          data-testid={`text-menu-item-desc-${item.id}`}
-        >
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-snug" data-testid={`text-menu-item-desc-${item.id}`}>
           {item.description}
         </p>
-        <p
-          className="mt-1.5 font-bold text-base"
-          data-testid={`text-menu-item-price-${item.id}`}
-        >
+        <p className="mt-1.5 font-bold text-base" data-testid={`text-menu-item-price-${item.id}`}>
           ${item.price.toFixed(2)}
         </p>
       </div>
 
-      {/* Counter */}
       <div className="shrink-0 flex items-center">
         {count === 0 ? (
           <Button
