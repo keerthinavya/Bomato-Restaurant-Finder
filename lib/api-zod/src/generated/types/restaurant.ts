@@ -5,9 +5,6 @@
  * Bomato restaurant listing API
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
 
 export interface Restaurant {
   id: number;
@@ -28,19 +25,3 @@ export interface Restaurant {
   /** @nullable */
   isFeatured?: boolean | null;
 }
-
-export type ListRestaurantsParams = {
-/**
- * Search by name or cuisine
- */
-search?: string;
-/**
- * Filter by cuisine tag
- */
-cuisine?: string;
-/**
- * Filter by price level (1-4)
- */
-priceLevel?: number;
-};
-

@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Bomato restaurant listing API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: restaurants
+    description: Restaurant operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,90 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /restaurants:
+    get:
+      operationId: listRestaurants
+      tags: [restaurants]
+      summary: List all restaurants
+      description: Returns a list of restaurants, optionally filtered
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search by name or cuisine
+        - in: query
+          name: cuisine
+          schema:
+            type: string
+          description: Filter by cuisine tag
+        - in: query
+          name: priceLevel
+          schema:
+            type: integer
+          description: Filter by price level (1-4)
+      responses:
+        "200":
+          description: List of restaurants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Restaurant"
+
+  /restaurants/{id}:
+    get:
+      operationId: getRestaurant
+      tags: [restaurants]
+      summary: Get a restaurant by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Restaurant details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Restaurant"
+        "404":
+          description: Not found
+
+  /restaurants/featured:
+    get:
+      operationId: getFeaturedRestaurants
+      tags: [restaurants]
+      summary: Get featured/top-rated restaurants
+      responses:
+        "200":
+          description: Featured restaurants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Restaurant"
+
+  /restaurants/cuisines:
+    get:
+      operationId: listCuisines
+      tags: [restaurants]
+      summary: List all available cuisine types
+      responses:
+        "200":
+          description: List of cuisine strings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +120,43 @@ components:
       required:
         - status
 
+    Restaurant:
+      type: object
+      required:
+        - id
+        - name
+        - imageUrl
+        - rating
+        - reviewCount
+        - cuisines
+        - priceLevel
+        - address
+        - isOpen
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        imageUrl:
+          type: string
+        rating:
+          type: number
+          format: float
+        reviewCount:
+          type: integer
+        cuisines:
+          type: array
+          items:
+            type: string
+        priceLevel:
+          type: integer
+          description: 1 to 4 dollar signs
+        address:
+          type: string
+        deliveryTime:
+          type: ["integer", "null"]
+          description: Estimated delivery time in minutes
+        isOpen:
+          type: boolean
+        isFeatured:
+          type: ["boolean", "null"]
