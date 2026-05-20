@@ -146,10 +146,7 @@ export default function OrderSummary() {
           <Button
             size="lg"
             className="w-full h-14 text-base font-bold rounded-2xl shadow-xl flex items-center justify-center gap-2"
-            onClick={() => {
-              clear();
-              setLocation("/");
-            }}
+            onClick={() => setLocation("/payment")}
             data-testid="button-proceed-payment"
           >
             <Receipt className="w-5 h-5" />

@@ -7,6 +7,8 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import RestaurantDetail from "@/pages/restaurant";
 import OrderSummary from "@/pages/order-summary";
+import Payment from "@/pages/payment";
+import OrderConfirmation from "@/pages/order-confirmation";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +18,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/restaurants/:id" component={RestaurantDetail} />
       <Route path="/order-summary" component={OrderSummary} />
+      <Route path="/payment" component={Payment} />
+      <Route path="/order-confirmation" component={OrderConfirmation} />
       <Route component={NotFound} />
     </Switch>
   );
