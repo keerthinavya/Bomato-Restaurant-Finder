@@ -16,31 +16,33 @@ export interface Restaurant {
   rating: number;
   reviewCount: number;
   cuisines: string[];
-  /** 1 to 4 dollar signs */
   priceLevel: number;
   address: string;
-  /**
-     * Estimated delivery time in minutes
-     * @nullable
-     */
+  /** @nullable */
   deliveryTime?: number | null;
   isOpen: boolean;
   /** @nullable */
   isFeatured?: boolean | null;
 }
 
+export interface MenuItem {
+  id: number;
+  restaurantId: number;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  isPopular?: boolean | null;
+  /** @nullable */
+  isVegetarian?: boolean | null;
+}
+
 export type ListRestaurantsParams = {
-/**
- * Search by name or cuisine
- */
 search?: string;
-/**
- * Filter by cuisine tag
- */
 cuisine?: string;
-/**
- * Filter by price level (1-4)
- */
 priceLevel?: number;
 };
 

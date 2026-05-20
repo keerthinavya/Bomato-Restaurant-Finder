@@ -12,13 +12,14 @@ tags:
     description: Health operations
   - name: restaurants
     description: Restaurant operations
+  - name: menu
+    description: Menu operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -32,23 +33,19 @@ paths:
       operationId: listRestaurants
       tags: [restaurants]
       summary: List all restaurants
-      description: Returns a list of restaurants, optionally filtered
       parameters:
         - in: query
           name: search
           schema:
             type: string
-          description: Search by name or cuisine
         - in: query
           name: cuisine
           schema:
             type: string
-          description: Filter by cuisine tag
         - in: query
           name: priceLevel
           schema:
             type: integer
-          description: Filter by price level (1-4)
       responses:
         "200":
           description: List of restaurants
@@ -110,6 +107,29 @@ paths:
                 items:
                   type: string
 
+  /restaurants/{restaurantId}/menu:
+    get:
+      operationId: listMenuItems
+      tags: [menu]
+      summary: List menu items for a restaurant
+      parameters:
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of menu items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MenuItem"
+        "404":
+          description: Restaurant not found
+
 components:
   schemas:
     HealthStatus:
@@ -150,13 +170,41 @@ components:
             type: string
         priceLevel:
           type: integer
-          description: 1 to 4 dollar signs
         address:
           type: string
         deliveryTime:
           type: ["integer", "null"]
-          description: Estimated delivery time in minutes
         isOpen:
           type: boolean
         isFeatured:
+          type: ["boolean", "null"]
+
+    MenuItem:
+      type: object
+      required:
+        - id
+        - restaurantId
+        - name
+        - description
+        - price
+        - category
+      properties:
+        id:
+          type: integer
+        restaurantId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        category:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        isPopular:
+          type: ["boolean", "null"]
+        isVegetarian:
           type: ["boolean", "null"]

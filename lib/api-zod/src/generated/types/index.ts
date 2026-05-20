@@ -8,4 +8,5 @@
 
 export * from './healthStatus';
 export * from './listRestaurantsParams';
+export * from './menuItem';
 export * from './restaurant';

@@ -18,6 +18,7 @@ import type {
 import type {
   HealthStatus,
   ListRestaurantsParams,
+  MenuItem,
   Restaurant
 } from './api.schemas';
 
@@ -42,7 +43,6 @@ export const getHealthCheckUrl = () => {
 }
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const healthCheck = async ( options?: RequestInit): Promise<HealthStatus> => {
@@ -127,7 +127,6 @@ export const getListRestaurantsUrl = (params?: ListRestaurantsParams,) => {
 }
 
 /**
- * Returns a list of restaurants, optionally filtered
  * @summary List all restaurants
  */
 export const listRestaurants = async (params?: ListRestaurantsParams, options?: RequestInit): Promise<Restaurant[]> => {
@@ -415,6 +414,83 @@ export function useListCuisines<TData = Awaited<ReturnType<typeof listCuisines>>
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListCuisinesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListMenuItemsUrl = (restaurantId: number,) => {
+
+
+
+
+  return `/api/restaurants/${restaurantId}/menu`
+}
+
+/**
+ * @summary List menu items for a restaurant
+ */
+export const listMenuItems = async (restaurantId: number, options?: RequestInit): Promise<MenuItem[]> => {
+
+  return customFetch<MenuItem[]>(getListMenuItemsUrl(restaurantId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMenuItemsQueryKey = (restaurantId: number,) => {
+    return [
+    `/api/restaurants/${restaurantId}/menu`
+    ] as const;
+    }
+
+
+export const getListMenuItemsQueryOptions = <TData = Awaited<ReturnType<typeof listMenuItems>>, TError = ErrorType<void>>(restaurantId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMenuItems>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMenuItemsQueryKey(restaurantId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMenuItems>>> = ({ signal }) => listMenuItems(restaurantId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(restaurantId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMenuItems>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMenuItemsQueryResult = NonNullable<Awaited<ReturnType<typeof listMenuItems>>>
+export type ListMenuItemsQueryError = ErrorType<void>
+
+
+/**
+ * @summary List menu items for a restaurant
+ */
+
+export function useListMenuItems<TData = Awaited<ReturnType<typeof listMenuItems>>, TError = ErrorType<void>>(
+ restaurantId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMenuItems>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMenuItemsQueryOptions(restaurantId,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

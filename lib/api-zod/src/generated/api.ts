@@ -9,7 +9,6 @@ import * as zod from 'zod';
 
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
@@ -18,13 +17,12 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * Returns a list of restaurants, optionally filtered
  * @summary List all restaurants
  */
 export const ListRestaurantsQueryParams = zod.object({
-  "search": zod.coerce.string().optional().describe('Search by name or cuisine'),
-  "cuisine": zod.coerce.string().optional().describe('Filter by cuisine tag'),
-  "priceLevel": zod.coerce.number().optional().describe('Filter by price level (1-4)')
+  "search": zod.coerce.string().optional(),
+  "cuisine": zod.coerce.string().optional(),
+  "priceLevel": zod.coerce.number().optional()
 })
 
 export const ListRestaurantsResponseItem = zod.object({
@@ -34,9 +32,9 @@ export const ListRestaurantsResponseItem = zod.object({
   "rating": zod.number(),
   "reviewCount": zod.number(),
   "cuisines": zod.array(zod.string()),
-  "priceLevel": zod.number().describe('1 to 4 dollar signs'),
+  "priceLevel": zod.number(),
   "address": zod.string(),
-  "deliveryTime": zod.number().nullish().describe('Estimated delivery time in minutes'),
+  "deliveryTime": zod.number().nullish(),
   "isOpen": zod.boolean(),
   "isFeatured": zod.boolean().nullish()
 })
@@ -57,9 +55,9 @@ export const GetRestaurantResponse = zod.object({
   "rating": zod.number(),
   "reviewCount": zod.number(),
   "cuisines": zod.array(zod.string()),
-  "priceLevel": zod.number().describe('1 to 4 dollar signs'),
+  "priceLevel": zod.number(),
   "address": zod.string(),
-  "deliveryTime": zod.number().nullish().describe('Estimated delivery time in minutes'),
+  "deliveryTime": zod.number().nullish(),
   "isOpen": zod.boolean(),
   "isFeatured": zod.boolean().nullish()
 })
@@ -75,9 +73,9 @@ export const GetFeaturedRestaurantsResponseItem = zod.object({
   "rating": zod.number(),
   "reviewCount": zod.number(),
   "cuisines": zod.array(zod.string()),
-  "priceLevel": zod.number().describe('1 to 4 dollar signs'),
+  "priceLevel": zod.number(),
   "address": zod.string(),
-  "deliveryTime": zod.number().nullish().describe('Estimated delivery time in minutes'),
+  "deliveryTime": zod.number().nullish(),
   "isOpen": zod.boolean(),
   "isFeatured": zod.boolean().nullish()
 })
@@ -89,5 +87,26 @@ export const GetFeaturedRestaurantsResponse = zod.array(GetFeaturedRestaurantsRe
  */
 export const ListCuisinesResponseItem = zod.string()
 export const ListCuisinesResponse = zod.array(ListCuisinesResponseItem)
+
+
+/**
+ * @summary List menu items for a restaurant
+ */
+export const ListMenuItemsParams = zod.object({
+  "restaurantId": zod.coerce.number()
+})
+
+export const ListMenuItemsResponseItem = zod.object({
+  "id": zod.number(),
+  "restaurantId": zod.number(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "price": zod.number(),
+  "category": zod.string(),
+  "imageUrl": zod.string().nullish(),
+  "isPopular": zod.boolean().nullish(),
+  "isVegetarian": zod.boolean().nullish()
+})
+export const ListMenuItemsResponse = zod.array(ListMenuItemsResponseItem)
 
 

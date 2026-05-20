@@ -13,13 +13,9 @@ export interface Restaurant {
   rating: number;
   reviewCount: number;
   cuisines: string[];
-  /** 1 to 4 dollar signs */
   priceLevel: number;
   address: string;
-  /**
-     * Estimated delivery time in minutes
-     * @nullable
-     */
+  /** @nullable */
   deliveryTime?: number | null;
   isOpen: boolean;
   /** @nullable */

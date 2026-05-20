@@ -7,16 +7,7 @@
  */
 
 export type ListRestaurantsParams = {
-/**
- * Search by name or cuisine
- */
 search?: string;
-/**
- * Filter by cuisine tag
- */
 cuisine?: string;
-/**
- * Filter by price level (1-4)
- */
 priceLevel?: number;
 };
