@@ -12,12 +12,19 @@ import {
 import type { MenuItem } from "@workspace/api-client-react/src/generated/api.schemas";
 import { useOrder } from "@/contexts/order-context";
 import { Star, Clock, MapPin, ArrowLeft, Minus, Plus, Leaf, Flame, ShoppingBag } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function RestaurantDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0", 10);
   const [, setLocation] = useLocation();
   const { increment, decrement, getCount, totalCount } = useOrder();
+  const { toast } = useToast();
+
+  const handleIncrement = (item: MenuItem, rid: number) => {
+    increment(item, rid);
+    toast({ title: "Added to cart", duration: 1500 });
+  };
 
   const { data: restaurant, isLoading, isError } = useGetRestaurant(id, {
     query: { enabled: !!id, queryKey: getGetRestaurantQueryKey(id) },
@@ -183,7 +190,7 @@ export default function RestaurantDetail() {
                       key={item.id}
                       item={item}
                       count={getCount(item.id)}
-                      onIncrement={() => increment(item, id)}
+                      onIncrement={() => handleIncrement(item, id)}
                       onDecrement={() => decrement(item.id)}
                     />
                   ))}

@@ -1,16 +1,46 @@
+import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useOrder } from "@/contexts/order-context";
-import { ArrowLeft, ShoppingBag, Receipt } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Receipt, Ticket, CheckCircle2 } from "lucide-react";
 
 export default function OrderSummary() {
   const [, setLocation] = useLocation();
   const { items, clear } = useOrder();
+  
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{code: string, discount: number} | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [instructions, setInstructions] = useState("");
 
   const orderLines = Object.values(items).filter((o) => o.quantity > 0);
-  const grandTotal = orderLines.reduce((sum, o) => sum + o.item.price * o.quantity, 0);
+  const subtotal = orderLines.reduce((sum, o) => sum + o.item.price * o.quantity, 0);
+
+  const applyCoupon = () => {
+    setCouponError("");
+    const code = couponCode.trim().toUpperCase();
+    if (code === "BOMATO20") {
+      setAppliedCoupon({ code, discount: 0.20 });
+    } else if (code === "FIRST50") {
+      setAppliedCoupon({ code, discount: 0.50 });
+    } else if (code !== "") {
+      setAppliedCoupon(null);
+      setCouponError("Invalid coupon code");
+    }
+  };
+
+  const discountAmount = appliedCoupon ? subtotal * appliedCoupon.discount : 0;
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  const deliveryFee = subtotalAfterDiscount >= 15 ? 0 : 2.99;
+  const platformFee = 1.99;
+  const taxes = subtotalAfterDiscount * 0.08;
+  const grandTotal = subtotalAfterDiscount + deliveryFee + platformFee + taxes;
 
   if (orderLines.length === 0) {
     return (
@@ -55,7 +85,7 @@ export default function OrderSummary() {
         </div>
 
         {/* Order card */}
-        <div className="bg-card border rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-card border rounded-2xl overflow-hidden shadow-sm space-y-6 pb-6">
           {/* Items */}
           <div className="divide-y">
             {orderLines.map(({ item, quantity }) => {
@@ -109,21 +139,70 @@ export default function OrderSummary() {
             })}
           </div>
 
+          <div className="px-5 space-y-3">
+             <Label htmlFor="instructions" className="text-sm font-medium">Delivery Instructions</Label>
+             <Textarea 
+               id="instructions" 
+               placeholder="Any special delivery instructions?" 
+               className="resize-none rounded-xl"
+               value={instructions}
+               onChange={e => setInstructions(e.target.value)}
+             />
+          </div>
+
+          <div className="px-5 space-y-3">
+             <Label htmlFor="coupon" className="text-sm font-medium">Have a coupon?</Label>
+             <div className="flex gap-2">
+               <div className="relative flex-1">
+                 <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                 <Input 
+                   id="coupon" 
+                   placeholder="Enter code (e.g. BOMATO20)" 
+                   className="pl-9 rounded-xl uppercase"
+                   value={couponCode}
+                   onChange={e => setCouponCode(e.target.value)}
+                 />
+               </div>
+               <Button variant="secondary" onClick={applyCoupon} className="rounded-xl font-bold">Apply</Button>
+             </div>
+             {couponError && <p className="text-sm text-destructive font-medium">{couponError}</p>}
+             {appliedCoupon && (
+               <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 border-0 flex items-center gap-1 w-fit">
+                 <CheckCircle2 className="w-3.5 h-3.5" />
+                 Coupon applied! {appliedCoupon.discount * 100}% off
+               </Badge>
+             )}
+          </div>
+
           <Separator />
 
           {/* Totals */}
-          <div className="px-5 py-4 space-y-3">
+          <div className="px-5 space-y-3">
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Subtotal</span>
-              <span>${grandTotal.toFixed(2)}</span>
+              <span>${subtotal.toFixed(2)}</span>
             </div>
+            {appliedCoupon && (
+              <div className="flex justify-between text-sm text-green-600 font-medium">
+                <span>Discount ({appliedCoupon.code})</span>
+                <span>-${discountAmount.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Delivery fee</span>
-              <span className="text-green-600 font-medium">Free</span>
+              <span>{deliveryFee === 0 ? <span className="text-green-600 font-medium">Free</span> : `$${deliveryFee.toFixed(2)}`}</span>
             </div>
-            <Separator />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Platform fee</span>
+              <span>${platformFee.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Taxes</span>
+              <span>${taxes.toFixed(2)}</span>
+            </div>
+            <Separator className="my-2" />
             <div className="flex justify-between items-center pt-1">
-              <span className="font-extrabold text-lg">Total</span>
+              <span className="font-extrabold text-lg">Grand Total</span>
               <span
                 className="font-extrabold text-2xl"
                 data-testid="text-grand-total"

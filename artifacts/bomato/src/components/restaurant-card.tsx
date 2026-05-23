@@ -1,8 +1,10 @@
 import { Link } from "wouter";
-import { Star, Clock, MapPin } from "lucide-react";
+import { Star, Clock, MapPin, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Restaurant } from "@workspace/api-client-react/src/generated/api.schemas";
+import { useFavorites } from "@/contexts/favorites-context";
+import { useToast } from "@/hooks/use-toast";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -10,8 +12,22 @@ interface RestaurantCardProps {
 
 export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   const { id, name, imageUrl, rating, reviewCount, cuisines, priceLevel, isOpen, deliveryTime } = restaurant;
-
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { toast } = useToast();
+  
+  const favorited = isFavorite(id);
   const priceString = "$".repeat(priceLevel);
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(id);
+    if (!favorited) {
+      toast({ title: "Added to favorites ❤", duration: 2000 });
+    } else {
+      toast({ title: "Removed from favorites", duration: 2000 });
+    }
+  };
 
   return (
     <div className="group relative flex flex-col bg-card rounded-2xl border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -20,6 +36,13 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
       </Link>
       
       <div className="relative h-48 w-full overflow-hidden bg-muted">
+        <button 
+          className="absolute top-3 left-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white/70 dark:bg-black/50 backdrop-blur-sm shadow-sm transition-transform active:scale-90 hover:bg-white dark:hover:bg-black/80"
+          onClick={handleFavoriteClick}
+        >
+          <Heart className={`w-4 h-4 transition-colors ${favorited ? "fill-red-500 text-red-500" : "text-foreground"}`} />
+        </button>
+        
         <img
           src={imageUrl}
           alt={`Exterior of ${name}`}

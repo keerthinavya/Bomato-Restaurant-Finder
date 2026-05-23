@@ -1,0 +1,329 @@
+Prompt - 5 (Replit Optimized Final Enhancement Prompt)
+
+Enhance the existing “Bomato” Next.js + Tailwind CSS food ordering application into a polished production-ready full-stack style frontend project optimized for Replit deployment.
+
+The project already includes:
+
+* Homepage with restaurant listings
+* Dynamic restaurant pages
+* Food item quantity selection
+* Order summary page
+* Payment page
+
+Now implement the following advanced features and improvements.
+
+---
+
+## TECH REQUIREMENTS
+
+* Use Next.js App Router
+* Use Tailwind CSS
+* Use TypeScript
+* Use reusable React components
+* Use Context API or Zustand for global state
+* Use localStorage where needed
+* Keep code modular and production-ready
+* Ensure mobile responsiveness
+* Optimize for Replit deployment
+
+---
+
+1. ORDER CONFIRMATION PAGE
+
+---
+
+After successful payment:
+
+Create a beautiful Order Confirmation page that includes:
+
+* Success animation/icon
+* Large confirmation message:
+  “Your order has been placed successfully!”
+* Unique Order ID generator
+* Estimated delivery time
+* Delivery address
+* Selected payment method
+
+Add buttons:
+
+* “Track Order”
+* “Back to Home”
+
+Use smooth animations and premium UI.
+
+---
+
+2. LIVE ORDER TRACKING PAGE
+
+---
+
+Create a mock delivery tracking page.
+
+Display delivery progress with animated steps:
+
+1. Order Confirmed
+2. Restaurant Preparing
+3. Food Picked Up
+4. Out for Delivery
+5. Delivered
+
+Requirements:
+
+* Animated progress bar
+* Highlight active step
+* Auto progress simulation using setInterval
+* Delivery partner card with:
+
+  * Name
+  * Phone
+  * Avatar image
+  * Bike image
+
+No backend required.
+
+---
+
+3. FAVORITES FEATURE
+
+---
+
+Allow users to:
+
+* Favorite/unfavorite restaurants
+* Use animated heart icon
+* Store favorites in localStorage
+* Create dedicated Favorites page
+
+If no favorites:
+
+* Show attractive empty state UI
+
+---
+
+4. ADVANCED FILTERING & SORTING
+
+---
+
+On homepage implement:
+
+Filters:
+
+* Cuisine
+* Rating
+* Price Level
+
+Sorting:
+
+* Highest Rated
+* Fast Delivery
+* Cost Low → High
+* Cost High → Low
+
+Filtering should update instantly without refresh.
+
+---
+
+5. DARK MODE
+
+---
+
+Implement complete dark mode support.
+
+Requirements:
+
+* Theme toggle button
+* Persist selected theme in localStorage
+* Smooth transitions
+* Tailwind dark mode classes
+
+---
+
+6. TOAST NOTIFICATIONS
+
+---
+
+Add animated toast notifications for:
+
+* Item added
+* Item removed
+* Favorite added
+* Favorite removed
+* Payment success
+* Order placed
+
+Use modern UI notifications.
+
+---
+
+7. LOADING STATES & SKELETONS
+
+---
+
+Add:
+
+* Skeleton cards while loading restaurants
+* Skeleton menu loading
+* Empty state pages
+
+Use subtle animations.
+
+---
+
+8. RESPONSIVE NAVIGATION
+
+---
+
+Desktop:
+
+* Top navbar
+
+Mobile:
+
+* Bottom navigation bar
+
+Navigation items:
+
+* Home
+* Favorites
+* Orders
+* Profile
+
+Use icons with active highlighting.
+
+---
+
+9. PROFILE PAGE (UI ONLY)
+
+---
+
+Create modern profile page containing:
+
+* User avatar
+* Name
+* Email
+* Saved addresses
+* Previous orders
+* Logout button
+
+Use dummy data only.
+
+---
+
+10. SEARCH IMPROVEMENTS
+
+---
+
+Enhance search with:
+
+* Live search suggestions
+* Search history
+* Recently viewed restaurants
+
+Store recent searches locally.
+
+---
+
+11. COUPON & DELIVERY FEATURES
+
+---
+
+On Order Summary page:
+
+Add:
+
+* Coupon code input
+* Discount calculation
+* Delivery fee
+* Platform fee
+* Taxes
+* Final payable amount
+
+Also add:
+
+* Delivery instructions textarea
+
+No backend needed.
+
+---
+
+12. UI/UX POLISH
+
+---
+
+Use premium modern UI design inspired by:
+
+* Zomato
+* Swiggy
+* Uber Eats
+
+Apply:
+
+* Framer Motion animations
+* Gradient buttons
+* Hover effects
+* Glassmorphism cards
+* Rounded corners
+* Soft shadows
+* Smooth transitions
+* Responsive spacing
+
+---
+
+13. CODE STRUCTURE
+
+---
+
+Organize project cleanly:
+
+/app
+/components
+/data
+/context
+/hooks
+/types
+/utils
+/public
+
+Create reusable components:
+
+* RestaurantCard
+* FoodItemCard
+* QuantitySelector
+* Navbar
+* MobileNav
+* Toast
+* SkeletonLoader
+* OrderSummaryCard
+
+---
+
+14. PERFORMANCE OPTIMIZATION
+
+---
+
+Implement:
+
+* Lazy loading
+* Optimized images using next/image
+* Dynamic imports where useful
+* Efficient state updates
+
+Ensure smooth performance on mobile.
+
+---
+
+15. DEPLOYMENT READY
+
+---
+
+Prepare app for deployment on Replit and Vercel.
+
+Requirements:
+
+* Add metadata
+* Add favicon/logo
+* Responsive viewport
+* Proper SEO tags
+* Error-free production build
+
+Generate complete production-quality code with clean architecture and modern UI.

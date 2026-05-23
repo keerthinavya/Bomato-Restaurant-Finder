@@ -6,13 +6,22 @@ interface OrderItem {
   quantity: number;
 }
 
+export interface DeliveryInfo {
+  name: string;
+  phone: string;
+  address: string;
+  paymentMethod: "upi" | "card" | "cod";
+}
+
 interface OrderContextValue {
   restaurantId: number | null;
   items: Record<number, OrderItem>;
   totalCount: number;
+  deliveryInfo: DeliveryInfo | null;
   increment: (item: MenuItem, restaurantId: number) => void;
   decrement: (itemId: number) => void;
   getCount: (itemId: number) => number;
+  setDeliveryInfo: (info: DeliveryInfo) => void;
   clear: () => void;
 }
 
@@ -21,6 +30,7 @@ const OrderContext = createContext<OrderContextValue | null>(null);
 export function OrderProvider({ children }: { children: React.ReactNode }) {
   const [restaurantId, setRestaurantId] = useState<number | null>(null);
   const [items, setItems] = useState<Record<number, OrderItem>>({});
+  const [deliveryInfo, setDeliveryInfoState] = useState<DeliveryInfo | null>(null);
 
   const totalCount = Object.values(items).reduce((sum, o) => sum + o.quantity, 0);
 
@@ -55,13 +65,18 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
   const getCount = useCallback((itemId: number) => items[itemId]?.quantity ?? 0, [items]);
 
+  const setDeliveryInfo = useCallback((info: DeliveryInfo) => {
+    setDeliveryInfoState(info);
+  }, []);
+
   const clear = useCallback(() => {
     setItems({});
     setRestaurantId(null);
+    setDeliveryInfoState(null);
   }, []);
 
   return (
-    <OrderContext.Provider value={{ restaurantId, items, totalCount, increment, decrement, getCount, clear }}>
+    <OrderContext.Provider value={{ restaurantId, items, totalCount, deliveryInfo, increment, decrement, getCount, setDeliveryInfo, clear }}>
       {children}
     </OrderContext.Provider>
   );

@@ -12,7 +12,7 @@ type PaymentMethod = "upi" | "card" | "cod";
 
 export default function Payment() {
   const [, setLocation] = useLocation();
-  const { items, clear } = useOrder();
+  const { items, clear, setDeliveryInfo } = useOrder();
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -55,8 +55,8 @@ export default function Payment() {
   const handleSubmit = () => {
     if (!validate()) return;
     setLoading(true);
+    setDeliveryInfo({ name: fullName, phone, address, paymentMethod: method });
     setTimeout(() => {
-      clear();
       setLocation("/order-confirmation");
     }, 2000);
   };

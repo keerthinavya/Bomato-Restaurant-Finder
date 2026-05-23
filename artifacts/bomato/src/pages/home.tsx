@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
-import { Search, Flame, MapPin } from "lucide-react";
+import { Search, Flame, MapPin, SlidersHorizontal } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { RestaurantCard, RestaurantCardSkeleton } from "@/components/restaurant-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   useListRestaurants, 
   useGetFeaturedRestaurants, 
@@ -17,6 +18,8 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCuisine, setSelectedCuisine] = useState<string | undefined>(undefined);
+  const [sortBy, setSortBy] = useState<string>("highest-rated");
+  const [minRating, setMinRating] = useState<string>("all");
 
   // Debounce search
   useState(() => {
@@ -33,11 +36,39 @@ export default function Home() {
     };
   }, [debouncedSearch, selectedCuisine]);
 
-  const { data: restaurants, isLoading: isLoadingRestaurants } = useListRestaurants(queryParams, {
+  const { data: rawRestaurants, isLoading: isLoadingRestaurants } = useListRestaurants(queryParams, {
     query: {
       queryKey: getListRestaurantsQueryKey(queryParams)
     }
   });
+
+  const restaurants = useMemo(() => {
+    let result = rawRestaurants || [];
+
+    // Filter by rating
+    if (minRating !== "all") {
+      const min = parseFloat(minRating);
+      result = result.filter(r => r.rating >= min);
+    }
+
+    // Sort
+    result = [...result].sort((a, b) => {
+      if (sortBy === "highest-rated") {
+        return b.rating - a.rating;
+      } else if (sortBy === "fast-delivery") {
+        const timeA = a.deliveryTime || 999;
+        const timeB = b.deliveryTime || 999;
+        return timeA - timeB;
+      } else if (sortBy === "price-low") {
+        return a.priceLevel - b.priceLevel;
+      } else if (sortBy === "price-high") {
+        return b.priceLevel - a.priceLevel;
+      }
+      return 0;
+    });
+
+    return result;
+  }, [rawRestaurants, minRating, sortBy]);
 
   const { data: featured, isLoading: isLoadingFeatured } = useGetFeaturedRestaurants();
   const { data: cuisines, isLoading: isLoadingCuisines } = useListCuisines();
@@ -104,9 +135,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Sort & Advanced Filters */}
+      <section className="border-b bg-background">
+         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4 overflow-x-auto whitespace-nowrap">
+           <div className="flex items-center gap-3">
+             <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+             <span className="text-sm font-semibold text-muted-foreground">Filters:</span>
+             <Select value={sortBy} onValueChange={setSortBy}>
+               <SelectTrigger className="w-[180px] h-9 rounded-full text-sm font-medium border-muted">
+                 <SelectValue placeholder="Sort by" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="highest-rated">Highest Rated</SelectItem>
+                 <SelectItem value="fast-delivery">Fast Delivery</SelectItem>
+                 <SelectItem value="price-low">Price: Low to High</SelectItem>
+                 <SelectItem value="price-high">Price: High to Low</SelectItem>
+               </SelectContent>
+             </Select>
+
+             <Select value={minRating} onValueChange={setMinRating}>
+               <SelectTrigger className="w-[140px] h-9 rounded-full text-sm font-medium border-muted">
+                 <SelectValue placeholder="Rating" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="all">Any Rating</SelectItem>
+                 <SelectItem value="4.0">4.0+ Stars</SelectItem>
+                 <SelectItem value="4.5">4.5+ Stars</SelectItem>
+                 <SelectItem value="4.8">4.8+ Stars</SelectItem>
+               </SelectContent>
+             </Select>
+           </div>
+           
+           {!isLoadingRestaurants && (
+             <span className="text-sm font-medium text-muted-foreground shrink-0 hidden md:block">
+               {restaurants.length} {restaurants.length === 1 ? 'restaurant' : 'restaurants'} found
+             </span>
+           )}
+         </div>
+      </section>
+
       <div className="container mx-auto px-4 py-12 flex flex-col gap-16">
         {/* Featured Section (Only show if no search/filter active) */}
-        {!debouncedSearch && !selectedCuisine && (
+        {!debouncedSearch && !selectedCuisine && minRating === "all" && sortBy === "highest-rated" && (
           <section>
             <div className="flex items-center gap-2 mb-8">
               <Flame className="w-6 h-6 text-primary" />
@@ -130,10 +200,10 @@ export default function Home() {
         <section>
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-bold">
-              {debouncedSearch || selectedCuisine ? "Search Results" : "All Restaurants"}
+              {debouncedSearch || selectedCuisine || minRating !== "all" || sortBy !== "highest-rated" ? "Search Results" : "All Restaurants"}
             </h2>
             {restaurants && (
-              <span className="text-muted-foreground font-medium bg-muted px-3 py-1 rounded-full text-sm">
+              <span className="text-muted-foreground font-medium bg-muted px-3 py-1 rounded-full text-sm md:hidden">
                 {restaurants.length} found
               </span>
             )}
@@ -154,7 +224,7 @@ export default function Home() {
               <p className="text-muted-foreground max-w-md">
                 We couldn't find any spots matching your criteria. Try adjusting your search or filters to discover more.
               </p>
-              {(debouncedSearch || selectedCuisine) && (
+              {(debouncedSearch || selectedCuisine || minRating !== "all" || sortBy !== "highest-rated") && (
                 <Button 
                   variant="outline" 
                   className="mt-6 rounded-full"
@@ -162,6 +232,8 @@ export default function Home() {
                     setSearchQuery("");
                     setDebouncedSearch("");
                     setSelectedCuisine(undefined);
+                    setMinRating("all");
+                    setSortBy("highest-rated");
                   }}
                 >
                   Clear all filters
